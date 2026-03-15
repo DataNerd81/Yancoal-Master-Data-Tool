@@ -20,7 +20,7 @@ export default function AdminPage() {
             View and manage user roles
           </p>
           <div className="mt-4 text-sm text-zinc-400">
-            Connect WorkOS to manage users.
+            Connect Clerk to manage users.
           </div>
         </div>
 

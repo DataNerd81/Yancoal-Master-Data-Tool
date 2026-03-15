@@ -39,7 +39,7 @@ export const dataTypeEnum = pgEnum("data_type", [
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
-  workosUserId: text("workos_user_id").unique().notNull(),
+  clerkUserId: text("clerk_user_id").unique().notNull(),
   email: text("email").notNull(),
   name: text("name"),
   role: userRoleEnum("role").notNull().default("uploader"),

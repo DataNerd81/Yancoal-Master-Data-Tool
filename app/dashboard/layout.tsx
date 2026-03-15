@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { UserButton } from "@clerk/nextjs";
 
 const navItems = [
   { href: "/dashboard/upload", label: "Upload", icon: "📤" },
@@ -39,7 +40,8 @@ export default function DashboardLayout({
           </ul>
         </nav>
 
-        <div className="border-t border-zinc-200 p-4 dark:border-zinc-800">
+        <div className="flex items-center gap-3 border-t border-zinc-200 p-4 dark:border-zinc-800">
+          <UserButton />
           <p className="text-xs text-zinc-400">v0.1.0</p>
         </div>
       </aside>

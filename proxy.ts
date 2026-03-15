@@ -1,18 +1,20 @@
-// ─── Next.js 16+ Auth Proxy (WorkOS AuthKit) ────────────────────────────────
-// This middleware checks authentication and RBAC at the route level.
-// Unauthenticated users are redirected to login.
-// Admin-only routes are blocked for non-Admin roles.
+// ─── Next.js 16+ Auth Middleware (Clerk) ─────────────────────────────────────
+// This middleware checks authentication at the route level.
+// Unauthenticated users are redirected to Clerk's sign-in page.
 
-import { authkitMiddleware } from "@workos-inc/authkit-nextjs";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-export default authkitMiddleware({
-  middlewareAuth: {
-    enabled: true,
-    unauthenticatedPaths: [
-      "/",
-      "/api/health",
-    ],
-  },
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/api/health",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+]);
+
+export default clerkMiddleware(async (auth, request) => {
+  if (!isPublicRoute(request)) {
+    await auth.protect();
+  }
 });
 
 export const config = {
