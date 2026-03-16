@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
 type SeverityFilter = "all" | "error" | "warning";
@@ -30,6 +30,20 @@ interface UploadSummary {
 }
 
 export default function ResultsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-24">
+          <p className="text-zinc-500">Loading validation results...</p>
+        </div>
+      }
+    >
+      <ResultsContent />
+    </Suspense>
+  );
+}
+
+function ResultsContent() {
   const searchParams = useSearchParams();
   const uploadId = searchParams.get("uploadId");
 
