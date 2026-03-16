@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { users, validationResults, type NewValidationResult } from "@/lib/db/schema";
 import { createUpload, updateUploadStatus } from "@/lib/db/queries/uploads";
 import { getCodeSet } from "@/lib/db/queries/reference";
+import { createAuditEntry } from "@/lib/db/queries/audit";
 import { parseExcelFile, validateFileMetadata } from "@/lib/parsers/excel";
 import {
   validateFunctionalLocation,
@@ -197,6 +198,21 @@ export async function POST(request: NextRequest) {
       errorCount,
       warningCount,
       cleanCount: parsed.rowCount - rowsWithIssues,
+    });
+
+    // ── Audit log entry ─────────────────────────────────────────────
+    await createAuditEntry({
+      userId: dbUser.id,
+      action: "file_upload",
+      resourceType: "upload",
+      resourceId: upload.id,
+      metadata: {
+        filename: file.name,
+        dataType,
+        rowCount: parsed.rowCount,
+        errorCount,
+        warningCount,
+      },
     });
 
     // ── Return real uploadId ─────────────────────────────────────────
