@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getCodeSet } from "@/lib/db/queries/reference";
 import {
   validateFunctionalLocation,
   validateMaintenancePlan,
@@ -27,20 +28,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const allErrors: ValidationError[] = [];
+    // Load reference data from database
+    const [
+      divisionCodes,
+      businessUnits,
+      siteCodes,
+      plantTypes,
+      componentCodes,
+      costCentres,
+      workCentres,
+      fleetCodes,
+      actionCodes,
+      locationCodes,
+    ] = await Promise.all([
+      getCodeSet("division"),
+      getCodeSet("business_unit"),
+      getCodeSet("site_code"),
+      getCodeSet("plant_type"),
+      getCodeSet("component"),
+      getCodeSet("cost_centre"),
+      getCodeSet("work_centre"),
+      getCodeSet("fleet_code"),
+      getCodeSet("action_code"),
+      getCodeSet("location_code"),
+    ]);
 
-    // TODO: Load reference data from database
-    // For now, use empty sets as placeholder
-    const emptyRefData: FLReferenceData = {
-      divisionCodes: new Set(),
-      businessUnits: new Set(),
-      siteCodes: new Set(),
-      plantTypes: new Set(),
-      componentCodes: new Set(),
-      costCentres: new Set(),
-      workCentres: new Set(),
+    const refData: FLReferenceData = {
+      divisionCodes,
+      businessUnits,
+      siteCodes,
+      plantTypes,
+      componentCodes,
+      costCentres,
+      workCentres,
     };
 
+    const allErrors: ValidationError[] = [];
     const existingFLs = new Set<string>();
     const uploadFLsSoFar = new Set<string>();
 
@@ -54,7 +77,7 @@ export async function POST(request: NextRequest) {
           rowErrors = validateFunctionalLocation(
             row,
             rowNumber,
-            emptyRefData,
+            refData,
             existingFLs,
             uploadFLsSoFar,
           );
@@ -64,14 +87,14 @@ export async function POST(request: NextRequest) {
           break;
         case "maintenance_plan":
           rowErrors = validateMaintenancePlan(row, rowNumber, {
-            fleetCodes: new Set(),
-            actionCodes: new Set(),
-            siteCodes: new Set(),
+            fleetCodes,
+            actionCodes,
+            siteCodes,
           });
           break;
         case "task_list":
           rowErrors = validateTaskList(row, rowNumber, {
-            locationCodes: new Set(),
+            locationCodes,
           });
           break;
         case "equipment":
