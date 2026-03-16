@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 
 type SeverityFilter = "all" | "error" | "warning";
 
@@ -15,9 +16,82 @@ interface ValidationResultRow {
   suggestedFix: string | null;
 }
 
+interface UploadSummary {
+  id: string;
+  filename: string;
+  dataType: string;
+  status: string;
+  rowCount: number;
+  errorCount: number;
+  warningCount: number;
+  cleanCount: number;
+  createdAt: string;
+  completedAt: string | null;
+}
+
 export default function ResultsPage() {
+  const searchParams = useSearchParams();
+  const uploadId = searchParams.get("uploadId");
+
   const [filter, setFilter] = useState<SeverityFilter>("all");
-  const [results] = useState<ValidationResultRow[]>([]);
+  const [results, setResults] = useState<ValidationResultRow[]>([]);
+  const [upload, setUpload] = useState<UploadSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
+
+  useEffect(() => {
+    if (!uploadId) {
+      setLoading(false);
+      return;
+    }
+
+    async function fetchResults() {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/results/${uploadId}`);
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || "Failed to fetch results");
+        }
+        const data = await response.json();
+        setUpload(data.upload);
+        setResults(data.results);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch results");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchResults();
+  }, [uploadId]);
+
+  const handleDownload = async () => {
+    if (!uploadId) return;
+    setDownloading(true);
+    try {
+      const response = await fetch(`/api/results/${uploadId}/download`);
+      if (!response.ok) {
+        throw new Error("Failed to download");
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download =
+        (upload?.filename?.replace(/\.\w+$/, "") ?? "results") +
+        "_validation_results.xlsx";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Download failed");
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const filteredResults =
     filter === "all"
@@ -27,6 +101,32 @@ export default function ResultsPage() {
   const errorCount = results.filter((r) => r.severity === "error").length;
   const warningCount = results.filter((r) => r.severity === "warning").length;
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <p className="text-zinc-500">Loading validation results...</p>
+      </div>
+    );
+  }
+
+  if (!uploadId) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <p className="text-zinc-500">
+          No upload selected. Upload a file to see validation results.
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-24">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -34,7 +134,9 @@ export default function ResultsPage() {
           Validation Results
         </h1>
         <p className="mt-1 text-zinc-500">
-          Review validation errors and warnings
+          {upload
+            ? `${upload.filename} — ${upload.rowCount} rows validated`
+            : "Review validation errors and warnings"}
         </p>
       </div>
 
@@ -102,7 +204,7 @@ export default function ResultsPage() {
                   className="px-4 py-12 text-center text-zinc-400"
                 >
                   {results.length === 0
-                    ? "No validation results yet. Upload a file to get started."
+                    ? "No validation issues found — all rows are clean."
                     : "No matching results for the selected filter."}
                 </td>
               </tr>
@@ -146,10 +248,11 @@ export default function ResultsPage() {
 
       {/* Download Button */}
       <button
-        disabled={results.length === 0}
+        disabled={results.length === 0 || downloading}
+        onClick={handleDownload}
         className="max-w-sm rounded-lg bg-zinc-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
       >
-        Download Annotated Excel
+        {downloading ? "Generating..." : "Download Annotated Excel"}
       </button>
     </div>
   );
