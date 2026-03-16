@@ -26,7 +26,7 @@ export function validateEquipment(
       ruleId: "EQ-001",
       severity: "error",
       message: `Equipment number '${row.equipmentNumber}' contains invalid characters`,
-      suggestedFix: null,
+      suggestedFix: row.equipmentNumber.replace(/[^A-Za-z0-9\-]/g, ''),
     });
   }
 
@@ -39,7 +39,7 @@ export function validateEquipment(
       ruleId: "EQ-002",
       severity: "error",
       message: `Referenced Functional Location '${row.functionalLocation}' does not exist`,
-      suggestedFix: null,
+      suggestedFix: "Verify the Functional Location exists or create it first",
     });
   }
 

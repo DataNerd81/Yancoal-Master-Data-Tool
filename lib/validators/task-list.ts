@@ -53,7 +53,7 @@ export function validateTaskList(
       ruleId: "TL-003",
       severity: "warning",
       message: `Location Code '${row.locationCode}' not found in validated list`,
-      suggestedFix: null,
+      suggestedFix: "Check reference data for valid location codes",
     });
   }
 

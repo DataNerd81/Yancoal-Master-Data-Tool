@@ -57,7 +57,7 @@ export function validateMaintenancePlan(
       ruleId: "MP-002",
       severity: "error",
       message: `Fleet Designator '${row.fleetDesignator}' not found in registered fleet codes`,
-      suggestedFix: null,
+      suggestedFix: "Check reference data for valid fleet codes",
     });
   }
 
@@ -96,7 +96,11 @@ export function validateMaintenancePlan(
       ruleId: "MP-004",
       severity: "warning",
       message: `Frequency '${row.frequency}' doesn't match standard formats (WKLY, HR, YRLY, etc.)`,
-      suggestedFix: null,
+      suggestedFix: [...VALID_FREQUENCIES].sort((a, b) => {
+        const distA = Math.abs(a.length - (row.frequency?.length ?? 0));
+        const distB = Math.abs(b.length - (row.frequency?.length ?? 0));
+        return distA - distB;
+      })[0] ?? null,
     });
   }
 
@@ -109,7 +113,7 @@ export function validateMaintenancePlan(
       ruleId: "MP-005",
       severity: "error",
       message: `Process Code '${row.processCode}' does not align with FL Site Codes`,
-      suggestedFix: null,
+      suggestedFix: "Check reference data for valid site codes",
     });
   }
 

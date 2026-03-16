@@ -78,7 +78,7 @@ function validateMask1Levels(
       ruleId: "FL-003",
       severity: "error",
       message: `Level 1 Division code '${parts[0]}' is not 4 numeric characters`,
-      suggestedFix: null,
+      suggestedFix: "Check reference data for valid division codes",
     });
   } else if (parts[0] && !refData.divisionCodes.has(parts[0])) {
     errors.push({
@@ -88,7 +88,7 @@ function validateMask1Levels(
       ruleId: "FL-003",
       severity: "error",
       message: `Division code '${parts[0]}' not found in reference table`,
-      suggestedFix: null,
+      suggestedFix: "Check reference data for valid division codes",
     });
   }
 
@@ -101,7 +101,7 @@ function validateMask1Levels(
       ruleId: "FL-004",
       severity: "error",
       message: `Level 2 Business Unit '${parts[1]}' is not 4 numeric characters`,
-      suggestedFix: null,
+      suggestedFix: "Check reference data for valid business units",
     });
   } else if (parts[1] && !refData.businessUnits.has(parts[1])) {
     errors.push({
@@ -111,7 +111,7 @@ function validateMask1Levels(
       ruleId: "FL-004",
       severity: "error",
       message: `Business Unit '${parts[1]}' not found in reference table`,
-      suggestedFix: null,
+      suggestedFix: "Check reference data for valid business units",
     });
   }
 
@@ -128,7 +128,7 @@ function validateMask1Levels(
         ruleId: "FL-005",
         severity: "error",
         message: `Level 3 Site Code '${siteCode}' must be 2 alpha characters`,
-        suggestedFix: null,
+        suggestedFix: "Check reference data for valid site codes (ME, LW, IF, etc.)",
       });
     } else if (!refData.siteCodes.has(siteCode)) {
       errors.push({
@@ -138,7 +138,7 @@ function validateMask1Levels(
         ruleId: "FL-005",
         severity: "error",
         message: `Site Code '${siteCode}' not found in validated list`,
-        suggestedFix: null,
+        suggestedFix: "Check reference data for valid site codes (ME, LW, IF, etc.)",
       });
     }
 
@@ -150,7 +150,7 @@ function validateMask1Levels(
         ruleId: "FL-006",
         severity: "error",
         message: `Level 3 chars 3-4 '${numericPart}' must be numeric`,
-        suggestedFix: null,
+        suggestedFix: numericPart.replace(/\D/g, '').padStart(2, '0').substring(0, 2),
       });
     }
   }
@@ -166,7 +166,7 @@ function validateMask1Levels(
         ruleId: "FL-007",
         severity: "error",
         message: `Level 4 must start with alpha character`,
-        suggestedFix: null,
+        suggestedFix: "Check reference data for valid plant types (TR, DZ, CV, etc.)",
       });
     } else if (!refData.plantTypes.has(plantType)) {
       errors.push({
@@ -176,7 +176,7 @@ function validateMask1Levels(
         ruleId: "FL-007",
         severity: "error",
         message: `Plant Type '${plantType}' not found in validated list`,
-        suggestedFix: null,
+        suggestedFix: "Check reference data for valid plant types (TR, DZ, CV, etc.)",
       });
     }
   }
@@ -203,7 +203,7 @@ function validateMask2Levels(
         ruleId: "FL-007",
         severity: "error",
         message: `Mask 2 Level 1 Plant Type '${plantType}' must be 2 alpha characters`,
-        suggestedFix: null,
+        suggestedFix: "Check reference data for valid plant types (TR, DZ, CV, etc.)",
       });
     } else if (!refData.plantTypes.has(plantType)) {
       errors.push({
@@ -213,7 +213,7 @@ function validateMask2Levels(
         ruleId: "FL-007",
         severity: "error",
         message: `Plant Type '${plantType}' not found in validated list`,
-        suggestedFix: null,
+        suggestedFix: "Check reference data for valid plant types (TR, DZ, CV, etc.)",
       });
     }
   }
@@ -230,7 +230,7 @@ function validateMask2Levels(
           ruleId: "FL-015",
           severity: "error",
           message: `Mask 2 Level ${i + 1} Component code '${componentCode}' must be 3 alpha characters`,
-          suggestedFix: null,
+          suggestedFix: "Check reference data for valid component codes",
         });
       } else if (!refData.componentCodes.has(componentCode)) {
         errors.push({
@@ -240,7 +240,7 @@ function validateMask2Levels(
           ruleId: "FL-015",
           severity: "error",
           message: `Component code '${componentCode}' not found in validated list`,
-          suggestedFix: null,
+          suggestedFix: "Check reference data for valid component codes",
         });
       }
     }
@@ -285,7 +285,7 @@ export function validateFunctionalLocation(
       ruleId: "FL-016",
       severity: "error",
       message: "Description is required",
-      suggestedFix: null,
+      suggestedFix: "This field is required - please provide a value",
     });
   }
 
@@ -302,7 +302,7 @@ export function validateFunctionalLocation(
       severity: "error",
       message:
         "Functional Location does not match Mask 1 (NAVI) or Mask 2 (UNIT) pattern",
-      suggestedFix: null,
+      suggestedFix: "Check format matches NNNN-NNNN-AAXX-AXXX-XXXX-XXXX (NAVI) or NNNNAAXXXX-AAAXXX-AAAXXX-AAAXXX-XXXXXXXX (UNIT)",
     });
   } else if (maskType === "NAVI") {
     // FL-001: Mask 1 pattern
@@ -314,7 +314,7 @@ export function validateFunctionalLocation(
         ruleId: "FL-001",
         severity: "error",
         message: `Does not match NAVI mask: NNNN-NNNN-AAXX-AXXX-XXXX-XXXX`,
-        suggestedFix: null,
+        suggestedFix: "Check format matches NNNN-NNNN-AAXX-AXXX-XXXX-XXXX (NAVI) or NNNNAAXXXX-AAAXXX-AAAXXX-AAAXXX-XXXXXXXX (UNIT)",
       });
     } else {
       errors.push(...validateMask1Levels(trimmedFL, rowNumber, refData));
@@ -353,7 +353,7 @@ export function validateFunctionalLocation(
         ruleId: "FL-002",
         severity: "error",
         message: `Does not match UNIT mask: NNNNAAXXXX-AAAXXX-AAAXXX-AAAXXX-XXXXXXXX`,
-        suggestedFix: null,
+        suggestedFix: "Check format matches NNNN-NNNN-AAXX-AXXX-XXXX-XXXX (NAVI) or NNNNAAXXXX-AAAXXX-AAAXXX-AAAXXX-XXXXXXXX (UNIT)",
       });
     } else {
       errors.push(...validateMask2Levels(trimmedFL, rowNumber, refData));
@@ -372,7 +372,11 @@ export function validateFunctionalLocation(
       ruleId: "FL-008",
       severity: "error",
       message: `ABC Indicator '${row.abcIndicator}' must be 1-5`,
-      suggestedFix: null,
+      suggestedFix: (() => {
+        const num = parseInt(row.abcIndicator!, 10);
+        if (!isNaN(num)) return String(Math.max(1, Math.min(5, num)));
+        return "3";
+      })(),
     });
   }
 
@@ -388,7 +392,7 @@ export function validateFunctionalLocation(
       ruleId: "FL-009",
       severity: "error",
       message: `User Status '${row.userStatus}' must be one of: ${VALID_USER_STATUSES.join(", ")}`,
-      suggestedFix: null,
+      suggestedFix: "ACTV",
     });
   }
 
@@ -404,7 +408,7 @@ export function validateFunctionalLocation(
         ruleId: "FL-011",
         severity: "error",
         message: `Superior FL '${row.superiorFL}' not found in database or preceding rows`,
-        suggestedFix: null,
+        suggestedFix: "Create the superior FL first, or check for typos",
       });
     }
   }
@@ -418,7 +422,7 @@ export function validateFunctionalLocation(
       ruleId: "FL-012",
       severity: "warning",
       message: "Duplicate Functional Location found in this upload",
-      suggestedFix: null,
+      suggestedFix: "Remove this duplicate row",
     });
   }
   if (existingFLs.has(trimmedFL)) {
@@ -429,7 +433,7 @@ export function validateFunctionalLocation(
       ruleId: "FL-012",
       severity: "warning",
       message: "Functional Location already exists in the database",
-      suggestedFix: null,
+      suggestedFix: "Remove this duplicate row",
     });
   }
 
@@ -442,7 +446,7 @@ export function validateFunctionalLocation(
       ruleId: "FL-013",
       severity: "error",
       message: `Cost Centre '${row.costCentre}' not found in reference table`,
-      suggestedFix: null,
+      suggestedFix: "Check reference data for valid cost centres",
     });
   }
 
@@ -455,7 +459,7 @@ export function validateFunctionalLocation(
       ruleId: "FL-014",
       severity: "error",
       message: `Work Centre '${row.workCentre}' not found in reference table`,
-      suggestedFix: null,
+      suggestedFix: "Check reference data for valid work centres",
     });
   }
 
@@ -468,7 +472,7 @@ export function validateFunctionalLocation(
       ruleId: "GEN-002",
       severity: "error",
       message: "Functional Location contains invalid special characters",
-      suggestedFix: null,
+      suggestedFix: trimmedFL.replace(/[^A-Za-z0-9\-_]/g, ''),
     });
   }
 
